@@ -9,7 +9,6 @@
 #include <memory>
 #include <functional>
 #include <string>
-#include <mutex>
 #include <atomic>
 
 namespace detail {
@@ -85,8 +84,6 @@ struct bag {
 
     static bag& merge(bag& l, bag& r) {
         // unfortunately these are necessary without transform_reduce
-        bag::lock_t ll{ l.mtx_ };
-        bag::lock_t lr{ r.mtx_ };
         if (l.spine_.size() < r.spine_.size())
             l.spine_.resize(r.spine_.size(), nullptr);
         else if (r.spine_.size() < l.spine_.size())
@@ -102,9 +99,6 @@ struct bag {
     }
 
 private:
-    using lock_t= std::unique_lock<std::mutex>;
-    mutable lock_t::mutex_type mtx_;
-
     std::vector<pennant*> spine_;
 
     using res_t = std::pair<pennant*, pennant*>;
